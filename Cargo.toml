@@ -1,0 +1,22 @@
+[package]
+name = "chat"
+version = "0.2.0"
+edition = "2021"
+license = "ISC"
+description = "AI platform agnostic cli"
+homepage = "https://github.com/MNThomson/chat"
+
+[lib]
+name = "chat"
+path = "src/lib.rs"
+
+[[bin]]
+name = "chat"
+path = "src/bin.rs"
+
+[dependencies]
+anyhow = "1.0.82"
+async-openai = "0.20"
+clap = { version = "4.5", features = ["derive"] }
+futures = "0.3"
+tokio = { version = "1.37.0", features = ["full"] }
