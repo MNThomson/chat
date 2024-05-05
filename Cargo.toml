@@ -4,7 +4,7 @@ version = "0.2.0"
 edition = "2021"
 license = "ISC"
 description = "AI platform agnostic cli"
-homepage = "https://github.com/MNThomson/chat"
+repository = "https://github.com/MNThomson/chat"
 
 [lib]
 name = "chat"
