@@ -18,5 +18,8 @@ path = "src/bin.rs"
 anyhow = "1.0.82"
 async-openai = "0.20"
 clap = { version = "4.5", features = ["derive"] }
+dirs = "5.0.1"
+figment = { version = "0.10.19", features = ["toml"] }
 futures = "0.3"
+serde = "1.0.204"
 tokio = { version = "1.37.0", features = ["full"] }
