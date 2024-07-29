@@ -15,6 +15,8 @@ use serde::Deserialize;
 struct Cli {
     #[arg(short, long, default_value = "gpt-4o")]
     model: String,
+    #[arg(long, default_value = "false")]
+    code: bool,
     prompt: String,
 }
 
@@ -40,10 +42,21 @@ async fn main() -> anyhow::Result<()> {
         String::from("")
     };
 
-    let options = ProviderOptions {
-        prompt: format!("{}\n\n{}", cli.prompt, stdin_str)
+    let mut prompt = cli.prompt;
+    if !stdin_str.is_empty() {
+        prompt = format!("{}\n\n{}", prompt, stdin_str)
             .trim_end()
-            .to_string(),
+            .to_string();
+    }
+    if cli.code {
+        let code_role = String::from(
+            "Provide only code as output without any description.\nProvide only code in plain text format without Markdown formatting.\nDo not include symbols such as ``` or ```language.\nIf there is a lack of details, provide most logical solution.\nYou are not allowed to ask for more details.\nFor example if the prompt is \"Hello world Rust\", you should return \"fn main() {\\n    println!(\"Hello, world!\");\\n}\".",
+        );
+        prompt = format!("{}\n\n{}", code_role, prompt).to_string();
+    }
+
+    let options = ProviderOptions {
+        prompt,
         model: cli.model,
         api_key: figment.api_key,
     };
