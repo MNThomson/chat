@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+  merge_group:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust env
+        uses: ./.github/actions/setup-rust-env
+
+      - name: Rust clippy
+        run: cargo clippy --release
+
+  rustfmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust env
+        uses: ./.github/actions/setup-rust-env
+
+      - name: Rust fmt
+        run: cargo fmt --check
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust env
+        uses: "./.github/actions/setup-rust-env"
+
+      - uses: taiki-e/install-action@nextest
+
+      - name: Rust test
+        run: cargo nextest run
