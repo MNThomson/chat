@@ -1,6 +1,9 @@
 use async_openai::{
     config::OpenAIConfig,
-    types::{ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs},
+    types::{
+        ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
+        CreateChatCompletionRequestArgs,
+    },
     Client,
 };
 use futures::StreamExt;
@@ -8,6 +11,7 @@ use tokio::sync::mpsc::UnboundedReceiver;
 
 pub struct ProviderOptions {
     pub prompt: String,
+    pub system_prompt: String,
     pub model: String,
     pub api_key: String,
 }
@@ -28,10 +32,16 @@ impl Provider for OpenAI {
         let request = CreateChatCompletionRequestArgs::default()
             .model(options.model)
             .max_tokens(1024u16)
-            .messages([ChatCompletionRequestUserMessageArgs::default()
-                .content(options.prompt)
-                .build()?
-                .into()])
+            .messages([
+                ChatCompletionRequestSystemMessageArgs::default()
+                    .content(options.system_prompt)
+                    .build()?
+                    .into(),
+                ChatCompletionRequestUserMessageArgs::default()
+                    .content(options.prompt)
+                    .build()?
+                    .into(),
+            ])
             .build()?;
 
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
