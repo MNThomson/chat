@@ -1,7 +1,7 @@
 use std::io::{self, stdout, IsTerminal, Read, Write};
 
 use anyhow::Ok;
-use chat::{OpenAI, Provider, ProviderOptions};
+use chat::{LLMProvider, ProviderOptions, LLM};
 use clap::Parser;
 use figment::{
     providers::{Format, Toml},
@@ -57,22 +57,14 @@ async fn main() -> anyhow::Result<()> {
     let options = ProviderOptions {
         prompt,
         system_prompt,
-        model: cli.model,
+        model: chat::Provider::OpenAI(chat::OpenAIModel::Gpt4o), //cli.model,
         api_key: figment.api_key,
     };
-    let mut stream = OpenAI::chat_stream(options).await?;
+    let mut stream = LLM::chat_stream(options).await.unwrap();
 
     let mut lock = stdout().lock();
-    while let Some(result) = stream.recv().await {
-        match result {
-            Some(response) => {
-                write!(lock, "{}", response).unwrap();
-            }
-            None => {
-                writeln!(lock).unwrap();
-                break;
-            }
-        }
+    while let Some(fragment) = stream.recv().await {
+        write!(lock, "{}", fragment).unwrap();
         stdout().flush()?;
     }
 
