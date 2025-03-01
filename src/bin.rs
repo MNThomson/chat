@@ -1,7 +1,7 @@
 use std::io::{self, stdout, IsTerminal, Read, Write};
 
 use anyhow::Ok;
-use chat::{LLMProvider, ProviderOptions, LLM};
+use chat::{LLMOptions, LLM};
 use clap::Parser;
 use figment::{
     providers::{Format, Toml},
@@ -54,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
         String::from("")
     };
 
-    let options = ProviderOptions {
+    let options = LLMOptions {
         prompt,
         system_prompt,
         model: chat::Provider::OpenAI(chat::OpenAIModel::Gpt4o), //cli.model,

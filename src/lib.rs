@@ -1,23 +1,5 @@
-pub enum Provider {
-    Anthropic(AnthropicModel),
-    OpenAI(OpenAIModel),
-}
-
-pub enum AnthropicModel {
-    Claude35,
-    Claude37,
-    Custom(String),
-}
-
-pub enum OpenAIModel {
-    Gpt35,
-    Gpt4o,
-    Custom(String),
-}
-
 use async_openai::{
     config::OpenAIConfig,
-    //error::OpenAIError,
     types::{
         ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
         CreateChatCompletionRequestArgs,
@@ -27,7 +9,44 @@ use async_openai::{
 use futures::StreamExt;
 use tokio::sync::mpsc::UnboundedReceiver;
 
-pub struct ProviderOptions {
+pub enum Provider {
+    Anthropic(AnthropicModel),
+    OpenAI(OpenAIModel),
+}
+
+pub enum AnthropicModel {
+    Claude35Haiku,
+    Claude37Sonnet,
+    Custom(String),
+}
+impl From<AnthropicModel> for String {
+    fn from(val: AnthropicModel) -> Self {
+        use AnthropicModel::*;
+        match val {
+            Claude35Haiku => String::from("claude-3-5-haiku-latest"),
+            Claude37Sonnet => String::from("claude-3-7-sonnet-latest"),
+            Custom(s) => s,
+        }
+    }
+}
+
+pub enum OpenAIModel {
+    Gpt4o,
+    Gpt4oMini,
+    Custom(String),
+}
+impl From<OpenAIModel> for String {
+    fn from(val: OpenAIModel) -> Self {
+        use OpenAIModel::*;
+        match val {
+            Gpt4o => String::from("gpt-4o"),
+            Gpt4oMini => String::from("gpt-4o-mini"),
+            Custom(s) => s,
+        }
+    }
+}
+
+pub struct LLMOptions {
     pub prompt: String,
     pub system_prompt: String,
     pub model: Provider,
@@ -35,39 +54,19 @@ pub struct ProviderOptions {
     pub api_key: String,
 }
 
-/*
-impl Default for ProviderOptions {
-    fn default() -> Self {
-        ProviderOptions {
-            prompt: String::from(""),
-            system_prompt: String::from(""),
-            model: Provider::Anthropic(AnthropicModel::Claude37),
-            api_key: String::from(""),
-        }
-    }
-}
-*/
-
-pub trait LLMProvider {
-    fn chat_stream(
-        options: ProviderOptions,
-    ) -> impl std::future::Future<Output = Result<UnboundedReceiver<String>, ()>> + Send;
-}
-
 pub struct LLM {}
-
-impl LLMProvider for LLM {
-    async fn chat_stream(options: ProviderOptions) -> Result<UnboundedReceiver<String>, ()> {
+impl LLM {
+    pub async fn chat_stream(options: LLMOptions) -> Result<UnboundedReceiver<String>, ()> {
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
         match options.model {
-            Provider::Anthropic(model) => {}
+            Provider::Anthropic(_model) => {}
 
             Provider::OpenAI(model) => {
                 let client = Client::with_config(OpenAIConfig::new().with_api_key(options.api_key));
 
                 let request = CreateChatCompletionRequestArgs::default()
-                    .model("gpt-4o")
+                    .model(model)
                     .max_tokens(4096u16)
                     .messages([
                         ChatCompletionRequestSystemMessageArgs::default()
