@@ -22,7 +22,8 @@ struct Cli {
 
 #[derive(Debug, PartialEq, Deserialize)]
 struct AppConfig {
-    api_key: String,
+    openai_api_key: String,
+    anthropic_api_key: String,
 }
 
 #[tokio::main]
@@ -57,9 +58,11 @@ async fn main() -> anyhow::Result<()> {
     let options = LLMOptions {
         prompt,
         system_prompt,
-        model: chat::Provider::OpenAI(chat::OpenAIModel::Gpt4o), //cli.model,
-        api_key: figment.api_key,
+        model: chat::Provider::Anthropic(chat::AnthropicModel::Claude37Sonnet), //cli.model,
+        api_key: figment.anthropic_api_key,
+        max_tokens: 4096,
     };
+
     let mut stream = LLM::chat_stream(options).await.unwrap();
 
     let mut lock = stdout().lock();
