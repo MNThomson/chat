@@ -58,9 +58,9 @@ async fn main() -> anyhow::Result<()> {
     let options = LLMOptions {
         prompt,
         system_prompt,
-        model: chat::Provider::Anthropic(chat::AnthropicModel::Claude37Sonnet), //cli.model,
+        model: chat::Provider::Anthropic(chat::AnthropicModel::Claude4Sonnet), //cli.model,
         api_key: figment.anthropic_api_key,
-        max_tokens: 4096,
+        max_tokens: 16384,
     };
 
     let mut stream = LLM::chat_stream(options).await.unwrap();

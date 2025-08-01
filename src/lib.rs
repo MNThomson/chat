@@ -7,10 +7,11 @@ pub enum Provider {
     OpenAI(OpenAIModel),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum AnthropicModel {
     Claude35Haiku,
     Claude37Sonnet,
+    Claude4Sonnet,
     Custom(String),
 }
 impl From<AnthropicModel> for String {
@@ -19,6 +20,7 @@ impl From<AnthropicModel> for String {
         match val {
             Claude35Haiku => String::from("claude-3-5-haiku-latest"),
             Claude37Sonnet => String::from("claude-3-7-sonnet-latest"),
+            Claude4Sonnet => String::from("claude-sonnet-4-20250514"),
             Custom(s) => s,
         }
     }
